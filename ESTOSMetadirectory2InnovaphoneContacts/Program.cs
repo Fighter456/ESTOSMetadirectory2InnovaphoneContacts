@@ -17,7 +17,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[]
             {
-                new Service1()
+                new ESTOSMetadirectory2InnovaphoneContacts()
             };
             ServiceBase.Run(ServicesToRun);
         }

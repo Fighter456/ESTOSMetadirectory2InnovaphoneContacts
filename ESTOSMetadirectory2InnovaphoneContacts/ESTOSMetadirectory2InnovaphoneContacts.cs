@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace ESTOSMetadirectory2InnovaphoneContacts
 {
-    public partial class Service1 : ServiceBase
+    public partial class ESTOSMetadirectory2InnovaphoneContacts : ServiceBase
     {
-        public Service1()
+        public ESTOSMetadirectory2InnovaphoneContacts()
         {
             InitializeComponent();
         }
