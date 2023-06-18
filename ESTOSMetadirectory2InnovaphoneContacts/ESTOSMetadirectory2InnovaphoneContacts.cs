@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
@@ -31,6 +32,23 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
 
         protected override void OnStart(string[] args)
         {
+            var serviceDirectory = Path.GetPathRoot(Environment.SystemDirectory) + serviceName;
+            if (!Directory.Exists(serviceDirectory)) {
+                eventLog1.WriteEntry(
+                    String.Format(
+                        "Could not find service related directory '{0}'",
+                        serviceDirectory
+                    ),
+                    EventLogEntryType.Warning
+                );
+
+                Directory.CreateDirectory(serviceDirectory);
+
+                if (Directory.Exists(serviceDirectory))
+                {
+                    eventLog1.WriteEntry("Created service directory successful.", EventLogEntryType.Information);
+                }
+            }
         }
 
         protected override void OnStop()
