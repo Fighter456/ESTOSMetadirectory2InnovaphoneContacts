@@ -77,6 +77,8 @@
     <Compile Include="ESTOSMetadirectory2InnovaphoneContacts.Designer.cs">
       <DependentUpon>ESTOSMetadirectory2InnovaphoneContacts.cs</DependentUpon>
     </Compile>
+    <Compile Include="ESTOSMetadirectory2InnovaphoneMap.cs" />
+    <Compile Include="InnovaphoneContact.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>

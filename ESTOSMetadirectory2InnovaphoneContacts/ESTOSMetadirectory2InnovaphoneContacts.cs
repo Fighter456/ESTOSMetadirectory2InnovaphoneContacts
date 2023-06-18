@@ -1,5 +1,8 @@
-﻿using System;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
@@ -79,6 +82,44 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                     string.Format("Begin conversion of file '{0}'", item),
                     EventLogEntryType.Information
                 );
+
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    Delimiter = ";",
+                    HasHeaderRecord = true
+                };
+
+                using (var reader = new StreamReader(item))
+                using (var csv = new CsvReader(reader, config))
+                {
+                    csv.Context.RegisterClassMap<ESTOSMetadirectory2InnovaphoneMap>();
+                    var records = csv.GetRecords<InnovaphoneContact>().ToList();
+
+                    eventLog1.WriteEntry(
+                        string.Format("Read {0} records from file '{1}' and mapped it successfully.",
+                            records.Count(),
+                            item
+                        )
+                    );
+
+                    var outputFile = item.ToString();
+                    using (var writer = new StreamWriter(outputFile.Replace(".csv", "_converted.csv")))
+                    using (var csvWriter = new CsvWriter(writer, config))
+                    {
+                        csvWriter.WriteRecords(records);
+
+                        eventLog1.WriteEntry(
+                            string.Format("Converted file '{0}' successful. Output file written to '{1}'. Remove source file.",
+                                item,
+                                item.Replace(".csv", "_converted.csv")
+                            )
+                        );
+                    }
+
+                    reader.Close();
+                }
+
+                File.Delete(item);
             }
         }
     }
