@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
+using System.Threading;
 using System.Timers;
 
 namespace ESTOSMetadirectory2InnovaphoneContacts
@@ -18,6 +19,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
         public string httpUserName;
         public string httpPassword;
         public string innovaphoneDomain;
+        public string serviceDirectory;
         public const string serviceName = "ESTOSMetadirectory2InnovaphoneContacts";
         public ESTOSMetadirectory2InnovaphoneContacts()
         {
@@ -36,7 +38,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
 
         protected override void OnStart(string[] args)
         {
-            var serviceDirectory = Path.GetPathRoot(Environment.SystemDirectory) + serviceName;
+            serviceDirectory = Path.GetPathRoot(Environment.SystemDirectory) + serviceName;
             if (!Directory.Exists(serviceDirectory)) {
                 eventLog1.WriteEntry(
                     String.Format(
@@ -166,7 +168,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                     Delimiter = ";",
                     HasHeaderRecord = true
                 };
-
+                
                 using (var reader = new StreamReader(item))
                 using (var csv = new CsvReader(reader, config))
                 {
@@ -196,8 +198,60 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
 
                     reader.Close();
                 }
-
                 File.Delete(item);
+
+                eventLog1.WriteEntry(string.Format(
+                    "Start upload of file '{0}'",
+                    item.Replace(".csv", "_converted.csv")
+                    )
+                );
+
+                string command;
+                command = "/C %WINDIR%\\system32\\curl.EXE" +
+                             " --digest" +
+                             " -s" +
+                             " -S" +
+                             " -i" +
+                             " -u {0}:{1}" +
+                             " -H \"Content-Type:application/octet-stream\"" +
+                             " -H \"Expect: 100-continue\"" +
+                             " -X POST" +
+                             " --data-binary @\"{2}\"" +
+                             " \"" + "{3}\"" +
+                             " >> {4}";
+                Process process = Process.Start(
+                    "cmd.exe",
+                    string.Format(
+                        command,
+                        httpUserName,
+                        httpPassword,
+                        item.Replace(".csv", "_converted.csv"),
+                        httpEndpoint + "/" + innovaphoneDomain + "/contacts/post/" + Path.GetFileNameWithoutExtension(item) + "?op=csv",
+                        serviceDirectory.Replace(@"\", @"\\") + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log"
+                    )
+                );
+
+                while (!process.HasExited && process.Responding)
+                {
+                    eventLog1.WriteEntry(string.Format(
+                        "Waiting while upload file '{0}'",
+                        item.Replace(".csv", "_converted.csv")
+                        )
+                    );
+                    Thread.Sleep(10000);
+                }
+
+                File.Delete(item.Replace(".csv", "_converted.csv"));
+                eventLog1.WriteEntry(string.Format(
+                        "Finished upload of file '{0}'" + Environment.NewLine + Environment.NewLine + "{1}",
+                        item.Replace(".csv", "_converted.csv"),
+                        File.ReadAllText("C:\\" + serviceName + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log")
+                    )
+                );
+
+                File.Delete("C:\\" + serviceName + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log");
+
+                Thread.Sleep(30000);
             }
         }
     }
