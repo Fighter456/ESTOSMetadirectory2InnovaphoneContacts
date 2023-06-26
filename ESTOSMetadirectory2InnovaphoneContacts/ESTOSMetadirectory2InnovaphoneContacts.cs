@@ -130,7 +130,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
             }
 
             System.Timers.Timer timer = new System.Timers.Timer();
-            timer.Interval = 20000;
+            timer.Interval = 60000 * 5; // 5 minutes
             timer.Elapsed += new ElapsedEventHandler(this.OnTick);
             timer.Start();
         }
@@ -238,7 +238,9 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                         item.Replace(".csv", "_converted.csv")
                         )
                     );
-                    Thread.Sleep(10000);
+
+                    // wait for process being completed; re-check in 15 seconds
+                    Thread.Sleep(15000);
                 }
 
                 File.Delete(item.Replace(".csv", "_converted.csv"));
@@ -251,6 +253,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
 
                 File.Delete("C:\\" + serviceName + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log");
 
+                // sleep for 30 seconds to give the innovaphone PBX time to handle the latest upload
                 Thread.Sleep(30000);
             }
         }
