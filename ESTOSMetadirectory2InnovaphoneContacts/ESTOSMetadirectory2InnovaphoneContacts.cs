@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.ServiceProcess;
 using System.Threading;
 using System.Timers;
@@ -36,7 +37,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
             eventLog1.Source = serviceName;
         }
 
-        protected override void OnStart(string[] args)
+        protected override async void OnStart(string[] args)
         {
             serviceDirectory = Path.GetPathRoot(Environment.SystemDirectory) + serviceName;
             if (!Directory.Exists(serviceDirectory)) {
@@ -127,6 +128,51 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                         EventLogEntryType.Information
                     );
                 }
+            }
+
+            try
+            {
+                HttpClient httpClient = new HttpClient();
+                var response = await httpClient.GetAsync(httpEndpoint + "/" + innovaphoneDomain + "/contacts/post/");
+                if (response.Headers.Contains("WWW-Authenticate"))
+                {
+                    if (!response.Headers.GetValues("WWW-Authenticate").First().Contains("realm=\"Innovaphone\""))
+                    {
+                        eventLog1.WriteEntry(string.Format(
+                                "Unable to locate an Innovaphone PBX behind the endpoint address. " +
+                                "Expected 'realm=\"Innovaphone\"' within 'WWW-Authenticate' header " +
+                                "but got '{0}'",
+                                response.Headers.GetValues("WWW-Authenticate").First().ToString()
+                            ),
+                            EventLogEntryType.Error
+                        );
+
+                        Stop();
+                    }
+                }
+                else
+                {
+                    eventLog1.WriteEntry(
+                        "Unable to locate an Innovaphone PBX behind the endpoint address. " +
+                        "Expected 'WWW-Authenticate' header is missing.",
+                        EventLogEntryType.Error
+                    );
+
+                    Stop();
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                eventLog1.WriteEntry(string.Format(
+                        "Unexcepected exception while checking for the existance of a Innovaphone PBX behind endpoint address." +
+                        Environment.NewLine +
+                        "Exception: " + Environment.NewLine + "{0}",
+                        e.Message
+                    ),
+                    EventLogEntryType.Error
+                );
+
+                Stop();
             }
 
             System.Timers.Timer timer = new System.Timers.Timer();
