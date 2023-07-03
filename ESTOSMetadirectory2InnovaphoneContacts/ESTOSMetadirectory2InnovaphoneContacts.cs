@@ -129,6 +129,60 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                     );
                 }
             }
+            
+            if (File.Exists(Environment.SystemDirectory + Path.DirectorySeparatorChar + "curl.exe"))
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = Environment.SystemDirectory + Path.DirectorySeparatorChar + "curl.exe";
+                process.StartInfo.Arguments = "--version";
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.Start();
+
+                eventLog1.WriteEntry(string.Format(
+                        "Dectected curl with the following build:" + Environment.NewLine + "{0}",
+                        process.StandardOutput.ReadLine().ToString()
+                    )
+                );
+
+                process.WaitForExit();
+
+                // check for required '--digest'-auth support
+                process.StartInfo.Arguments = "--help auth";
+                process.Start();
+
+                if (process.StandardOutput.ReadToEnd().Contains("--digest"))
+                {
+                    eventLog1.WriteEntry(string.Format(
+                            "Installed curl does not support required digest-auth."
+                        ),
+                        EventLogEntryType.Error
+                    );
+
+                    process.WaitForExit();
+                    Stop();
+                }
+                else
+                {
+                    eventLog1.WriteEntry(
+                        "Unexcepted empty output while reading supported auth-mechanism of curl.",
+                        EventLogEntryType.Error
+                    );
+                    process.WaitForExit();
+                    Stop();
+                }
+            }
+            else
+            {
+                eventLog1.WriteEntry(string.Format(
+                        "Unable to locate 'curl.exe' at '{0}'",
+                        Environment.SystemDirectory
+                    ),
+                    EventLogEntryType.Error
+                );
+
+                Stop();
+            }
 
             try
             {
