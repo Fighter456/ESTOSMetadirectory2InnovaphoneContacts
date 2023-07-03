@@ -304,7 +304,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                 );
 
                 string command;
-                command = "/C %WINDIR%\\system32\\curl.EXE" +
+                command = "/C {5}" +
                              " --digest" +
                              " -s" +
                              " -S" +
@@ -324,7 +324,8 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                         httpPassword,
                         item.Replace(".csv", "_converted.csv"),
                         httpEndpoint + "/" + innovaphoneDomain + "/contacts/post/" + Path.GetFileNameWithoutExtension(item) + "?op=csv",
-                        serviceDirectory.Replace(@"\", @"\\") + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log"
+                        serviceDirectory.Replace(@"\", @"\\") + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log",
+                        Environment.SystemDirectory + Path.DirectorySeparatorChar + "curl.exe"
                     )
                 );
 
