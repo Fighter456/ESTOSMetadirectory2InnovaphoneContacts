@@ -151,21 +151,22 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                 process.StartInfo.Arguments = "--help auth";
                 process.Start();
 
-                if (process.StandardOutput.ReadToEnd().Contains("--digest"))
+                string output = process.StandardOutput.ReadToEnd();
+                if (String.IsNullOrEmpty(output))
                 {
-                    eventLog1.WriteEntry(string.Format(
-                            "Installed curl does not support required digest-auth."
-                        ),
+                    eventLog1.WriteEntry(
+                        "Unexcepted empty output while reading supported auth-mechanism of curl.",
                         EventLogEntryType.Error
                     );
 
                     process.WaitForExit();
                     Stop();
                 }
-                else
+                else if (!output.Contains("--digest"))
                 {
-                    eventLog1.WriteEntry(
-                        "Unexcepted empty output while reading supported auth-mechanism of curl.",
+                    eventLog1.WriteEntry(string.Format(
+                            "Installed curl does not support required digest-auth."
+                        ),
                         EventLogEntryType.Error
                     );
                     process.WaitForExit();
