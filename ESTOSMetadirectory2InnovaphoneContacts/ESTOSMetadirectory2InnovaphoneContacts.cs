@@ -181,10 +181,6 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
             timer.Start();
         }
 
-        protected override void OnStop()
-        {
-        }
-
         public void OnTick(object sender, ElapsedEventArgs args)
         {
             eventLog1.WriteEntry(
