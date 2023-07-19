@@ -23,3 +23,8 @@ jobs:
     - name: Build
       run:  msbuild ESTOSMetadirectory2InnovaphoneContacts.sln /p:Configuration=Release
       
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-${{ github.sha }}
+        path: D:\a\ESTOSMetadirectory2InnovaphoneContacts\ESTOSMetadirectory2InnovaphoneContacts\ESTOSMetadirectory2InnovaphoneContacts\bin\Release\
