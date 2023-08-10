@@ -345,11 +345,11 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                 eventLog1.WriteEntry(string.Format(
                         "Finished upload of file '{0}'" + Environment.NewLine + Environment.NewLine + "{1}",
                         item.Replace(".csv", "_converted.csv"),
-                        File.ReadAllText("C:\\" + serviceName + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log")
+                        File.ReadAllText(serviceDirectory.Replace(@"\", @"\\") + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log")
                     )
                 );
 
-                File.Delete("C:\\" + serviceName + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log");
+                File.Delete(serviceDirectory.Replace(@"\", @"\\") + "\\debug_" + Path.GetFileNameWithoutExtension(item) + ".log");
 
                 // sleep for 30 seconds to give the innovaphone PBX time to handle the latest upload
                 Thread.Sleep(30000);
