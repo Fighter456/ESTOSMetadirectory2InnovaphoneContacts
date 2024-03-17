@@ -33,8 +33,10 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                 );
             }
 
-            eventLog1 = new EventLog();
-            eventLog1.Source = serviceName;
+            eventLog1 = new EventLog
+            {
+                Source = serviceName
+            };
         }
 
         protected override async void OnStart(string[] args)
@@ -230,8 +232,10 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                 Stop();
             }
 
-            System.Timers.Timer timer = new System.Timers.Timer();
-            timer.Interval = 60000 * 5; // 5 minutes
+            System.Timers.Timer timer = new System.Timers.Timer
+            {
+                Interval = 60000 * 5 // 5 minutes
+            };
             timer.Elapsed += new ElapsedEventHandler(this.OnTick);
             timer.Start();
         }
