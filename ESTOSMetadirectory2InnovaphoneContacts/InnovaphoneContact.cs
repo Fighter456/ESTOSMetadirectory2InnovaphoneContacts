@@ -1,4 +1,5 @@
-﻿public class InnovaphoneContact
+﻿#pragma warning disable IDE1006
+public class InnovaphoneContact
 {
 	public string givenname { get; set; }
 	public string sn { get; set; }
