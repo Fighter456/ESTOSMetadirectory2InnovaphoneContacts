@@ -16,6 +16,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
     public partial class ESTOSMetadirectory2InnovaphoneContacts : ServiceBase
     {
         public EventLog eventLog1;
+        public bool allowInsecureConnection = false;
         public string httpEndpoint;
         public string httpUserName;
         public string httpPassword;
@@ -41,6 +42,31 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
 
         protected override async void OnStart(string[] args)
         {
+            
+            string[] allArguments = args.Concat(Environment.GetCommandLineArgs()).ToArray();
+            foreach (string argument in allArguments)
+            {
+                if (argument.Contains("="))
+                {
+                    string[] argumentParts = argument.Split('=');
+
+                    switch (argumentParts[0].Replace("/", ""))
+                    {
+                        case "allowInsecureConnection":
+                            allowInsecureConnection = bool.Parse(argumentParts[1]);
+                            if (allowInsecureConnection)
+                            {
+                                eventLog1.WriteEntry(
+                                    "Connection to insecure endpoints allowed. (i.e. invalid certifcate)",
+                                    EventLogEntryType.Warning
+                                );
+                            }
+
+                            break;
+                    }
+                }
+            }
+
             serviceDirectory = Path.GetPathRoot(Environment.SystemDirectory) + serviceName;
             if (!Directory.Exists(serviceDirectory)) {
                 eventLog1.WriteEntry(
@@ -190,6 +216,18 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
             try
             {
                 HttpClient httpClient = new HttpClient();
+                if (allowInsecureConnection)
+                {
+                    var httpClientHandler = new HttpClientHandler();
+                    httpClientHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                    httpClientHandler.ServerCertificateCustomValidationCallback = (HttpRequestMessage, cert, certChain, policyErrors) =>
+                    {
+                        return true;
+                    };
+
+                    httpClient = new HttpClient(httpClientHandler);
+                }
+                
                 var response = await httpClient.GetAsync(httpEndpoint + "/" + innovaphoneDomain + "/contacts/post/");
                 if (response.Headers.Contains("WWW-Authenticate"))
                 {
@@ -307,9 +345,12 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                     )
                 );
 
-                string command;
-                command = "/C {5}" +
-                             " --digest" +
+                string command = "/C {5}";
+                if (allowInsecureConnection)
+                {
+                    command += " --insecure";
+                }
+                command += " --digest" +
                              " -s" +
                              " -S" +
                              " -i" +
