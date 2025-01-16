@@ -45,7 +45,7 @@ The creation of a build is therefore a prerequisite.
   - Internet or network address: `ESTOSMetadirectory2InnovaphoneContacts`
   - Username: `%1|%2[|%3]`
     - `%1` is the domain where your Innovaphone PBX is reachable (e.g. `https://example.com`)
-    - `%2` is the value entered in the `User (HTTP Post)` field (e.g . `contactsupload`
+    - `%2` is the value entered in the `User (HTTP Post)` field (e.g . `contactsupload`)
     - `%3` is an optional parameter if the innovaphone domain does not equal the domain
   - Password: the value entered in the `Password (HTTP Post)` field (e.g. `mysecretpassword`)
   - Start the `ESTOSMetadirectory2InnovaphoneContacts` service (e.g. with `sc start ESTOSMetadirectory2InnovaphoneContacts` in command line prompt)
@@ -55,6 +55,19 @@ The creation of a build is therefore a prerequisite.
   Configure the (CSV) Export Replicator of ESTOS MetaDirectory to place the output file into this directory.
   The service watches this folder every five (5) minutes for processable files.
 
-  > **_NOTE:_**  The name of the telephone books equals the name of the file placed in the service directory.
+  > **_NOTE:_**  The name of the telephone book equals the name of the file placed in the service directory.
   
   Errors and information related to the service are being piped to the Windows Event Viewer.
+
+  #### Start parameters
+  The service supports the following start parameters:
+
+  | Parameter  | Possible values | Default value | Description |
+  | ------------- | :-------------: | :-------------: | ------------- |
+  | `/allowInsecureConnection`  | `true`<br />`false` | `false` | Allows or disallows insecure certicates at the Innovaphone PBX endpoint. |
+
+  Any parameter requires the following format in the _Start parameters_ field in the service configuration window:
+  `/PARAMETER=VALUE`
+
+  If you use multiple start parameters you need to seperate each with a space.
+
