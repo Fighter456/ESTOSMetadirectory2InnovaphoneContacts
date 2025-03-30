@@ -57,7 +57,7 @@ namespace ESTOSMetadirectory2InnovaphoneContacts
                             if (allowInsecureConnection)
                             {
                                 eventLog1.WriteEntry(
-                                    "Connection to insecure endpoints allowed. (i.e. invalid certifcate)",
+                                    "Connection to insecure endpoints allowed. (i.e. invalid certificate)",
                                     EventLogEntryType.Warning
                                 );
                             }
